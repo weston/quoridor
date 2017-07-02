@@ -22,6 +22,7 @@ class QuoridorGame(object):
         self.pieces = []
         self.board = QuoridorBoard()
         num_fences = TOTAL_FENCES / self.num_players
+        self.num_fences = num_fences
         print "Leave blank for human_player:HumanPlayer"
         for i in range(self.num_players):
             module_class_str = raw_input("class for p" + str(i) + ": ")
@@ -63,6 +64,7 @@ class QuoridorGame(object):
                 assert isinstance(action, PieceMove)
                 self.board.move_piece(piece, action)
             turn += 1
+        print "Game lasted {} turns!".format(turn)
 
 QuoridorGame().run()
 

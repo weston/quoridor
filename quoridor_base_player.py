@@ -14,11 +14,9 @@ class QuoridorBasePlayer(object):
 
     def handle_turn(self, board, piece, num_seconds):
         """
-        this function will be run for num_seconds seconds
-        if this function has not returned by then, it will use
-        self.move as the move. Should be subclassed for a custom
-        self.move = None
-        player.
+        num_seconds is the timeout for this function.
+        This is not currently being enforced.
+
         THe board passed into handle_turn is a copy of the real board.
         So don't try to modify the board to cheat.
 

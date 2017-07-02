@@ -23,18 +23,18 @@ class QuoridorBoard(object):
         # moves that are blocked by fences
         self.blocked_moves = set()
 
-        self.all_fence_positions = set()
+        self.all_fence_locations = set()
         for col in POSSIBLE_COLUMNS[:-1]:
             for row in POSSIBLE_ROWS[:-1]:
-                self.all_fence_positions.add(Fence(
+                self.all_fence_locations.add(Fence(
                     FenceLocation(col + row + "v")))
-                self.all_fence_positions.add(Fence(
+                self.all_fence_locations.add(Fence(
                     FenceLocation(col + row + "h")))
 
     def add_player(self, player_name):
         assert isinstance(player_name, basestring)
-        start_position = ("a4", "i4", "e0", "e8")[len(self.pieces)]
-        piece = Piece(PieceLocation(start_position))
+        start_location = ("a4", "i4", "e0", "e8")[len(self.pieces)]
+        piece = Piece(PieceLocation(start_location))
         piece.name = player_name
         self.pieces.append(piece)
         return piece
@@ -55,7 +55,7 @@ class QuoridorBoard(object):
 
     def move_piece(self, piece, piece_move):
         assert isinstance(piece_move, PieceMove)
-        #assert this piece is not hopping over a fence
+        # assert this piece is not hopping over a fence
         assert piece_move not in self.blocked_moves
 
         # assert this piece is not moving off the board
@@ -66,10 +66,10 @@ class QuoridorBoard(object):
 
         # assert that piece_move is a valid move for piece
         assert piece_move.end in piece.get_legal_destinations(self.pieces,
-                self.blocked_moves)
+                                                              self.blocked_moves)
 
         piece.location = piece_move.end
-        if piece.location in piece.goal_positions:
+        if piece.location in piece.goal_locations:
             self.declare_winner(piece)
         self.illegal_fences = self.get_illegal_fences()
 
@@ -78,21 +78,26 @@ class QuoridorBoard(object):
         self.complete = True
 
     def get_legal_fences(self):
-        return self.all_fence_positions - (self.blocked_fences |
-                self.illegal_fences)
+        return self.all_fence_locations - (self.blocked_fences |
+                                           self.illegal_fences)
+
+    def get_legal_moves(self, piece):
+        legal_destinations = piece.get_legal_destinations(
+            self.pieces, self.blocked_moves)
+        return {PieceMove(piece.location, dst) for dst in legal_destinations}
 
     def get_illegal_fences(self):
         illegal_fences = set()
-        for fence in self.all_fence_positions - self.blocked_fences:
+        for fence in self.all_fence_locations - self.blocked_fences:
             for piece in self.pieces:
-                if self._piece_is_blocked(piece.goal_positions, piece.location,
-                        fence, set()):
+                if self._piece_is_blocked(piece.goal_locations, piece.location,
+                                          fence, set()):
                     illegal_fences.add(fence)
                     break
         return illegal_fences
 
-    def _piece_is_blocked(self, goal_positions, location, fence, seen):
-        if location in goal_positions:
+    def _piece_is_blocked(self, goal_locations, location, fence, seen):
+        if location in goal_locations:
             return False
         seen.add(location)
         blocked_moves = self.blocked_moves | fence.get_blocked_moves()
@@ -100,12 +105,13 @@ class QuoridorBoard(object):
             move = PieceMove(location, adj_loc)
             if move not in blocked_moves and adj_loc not in seen:
                 if not self._piece_is_blocked(
-                        goal_positions, adj_loc, fence, seen):
+                        goal_locations, adj_loc, fence, seen):
                     return False
         return True
 
 
 class Fence(object):
+
     def __init__(self, fence_location):
         """
         Pass in a valid Fencelocation to init the fence
@@ -120,19 +126,19 @@ class Fence(object):
     def get_blocked_moves(self):
         """
         Returns a list of piece movements that are now blocked
-        based on the position of the fence. Some of these
+        based on the location of the fence. Some of these
         may be invalid moves, but that is okay.
         """
         nw = PieceLocation(self.location.column + self.location.row)
         sw = PieceLocation(self.location.column + self.location.add_row(1))
         ne = PieceLocation(self.location.add_column(1) + self.location.row)
         se = PieceLocation(self.location.add_column(1) +
-                self.location.add_row(1))
+                           self.location.add_row(1))
         if self.location.is_horizontal():
             return set([PieceMove(nw, sw), PieceMove(ne, se), PieceMove(sw, nw),
-                    PieceMove(se, ne)])
+                        PieceMove(se, ne)])
         return set([PieceMove(nw, ne), PieceMove(sw, se), PieceMove(ne, nw),
-                PieceMove(se, sw)])
+                    PieceMove(se, sw)])
 
     def get_blocked_fences(self):
         """
@@ -154,11 +160,11 @@ class Fence(object):
             ])
         else:
             blocked_fences.extend([
-            Fence(FenceLocation(
-                self.location.column + self.location.add_row(-1) + "v")),
-            Fence(FenceLocation(
-                self.location.column + self.location.add_row(1) + "v")),
-        ])
+                Fence(FenceLocation(
+                    self.location.column + self.location.add_row(-1) + "v")),
+                Fence(FenceLocation(
+                    self.location.column + self.location.add_row(1) + "v")),
+            ])
         return set(blocked_fences)
 
     def __eq__(self, other):
@@ -172,32 +178,33 @@ class Fence(object):
     def __repr__(self):
         return "Fence at " + str(self.location)
 
+
 class Piece(object):
 
-    def __init__(self, start_position, name="Player"):
+    def __init__(self, start_location, name="Player"):
         """
-        staart position can be either a start position string, or
+        staart location can be either a start location string, or
         a StartPosition object.
         """
-        if isinstance(start_position, PieceLocation):
-            self.start_position = start_position
-            self.location = start_position
+        if isinstance(start_location, PieceLocation):
+            self.start_location = start_location
+            self.location = start_location
         else:
-            self.start_position = PieceLocation(start_position)
-            self.location = PieceLocation(start_position)
+            self.start_location = PieceLocation(start_location)
+            self.location = PieceLocation(start_location)
         self.name = name
-        self.goal_positions = self._get_goal_positions()
+        self.goal_locations = self._get_goal_locations()
 
-    def _get_goal_positions(self):
-        if self.start_position.location_str == "a4":
+    def _get_goal_locations(self):
+        if self.start_location.location_str == "a4":
             return [PieceLocation("i" + str(row)) for row in POSSIBLE_ROWS]
-        if self.start_position.location_str == "i4":
+        if self.start_location.location_str == "i4":
             return [PieceLocation("a" + str(row)) for row in POSSIBLE_ROWS]
-        if self.start_position.location_str == "e0":
+        if self.start_location.location_str == "e0":
             return [PieceLocation(col + "8") for col in POSSIBLE_COLUMNS]
-        if self.start_position.location_str == "e8":
+        if self.start_location.location_str == "e8":
             return [PieceLocation(col + "0") for col in POSSIBLE_COLUMNS]
-        raise Exception("invalid start position")
+        raise Exception("invalid start location")
 
     def get_legal_destinations(self, pieces, blocked_moves):
         adjacent_locations = self.location.get_adjacent_locations()
@@ -210,13 +217,13 @@ class Piece(object):
             if adj_loc in occupied_locations:
                 colinear_loc = current_location.get_colinear_location(adj_loc)
                 if (colinear_loc is not None and
-                    PieceMove(adj_loc, colinear_loc) not in blocked_moves and
-                    colinear_loc not in occupied_locations):
+                        PieceMove(adj_loc, colinear_loc) not in blocked_moves and
+                        colinear_loc not in occupied_locations):
 
                     legal_destinations.add(colinear_loc)
                 else:
                     noncolinear_locs = (current_location.
-                            get_non_colinear_locations(adj_loc))
+                                        get_non_colinear_locations(adj_loc))
                     for loc in noncolinear_locs:
                         if (PieceMove(adj_loc, loc) not in blocked_moves and
                                 loc not in occupied_locations):
@@ -225,6 +232,7 @@ class Piece(object):
                 legal_destinations.add(adj_loc)
 
         return legal_destinations
+
 
 class PieceMove(object):
 
@@ -325,12 +333,9 @@ class PieceLocation(Location):
             return candidate
         return None
 
-
     def get_non_colinear_locations(self, other_location):
         """
         does the opposite of get_colinear_location. Used for hopping logic.
         """
         return (set(other_location.get_adjacent_locations()) -
                 ({self.get_colinear_location(other_location), self}))
-
-
