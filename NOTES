@@ -1,0 +1,18 @@
+LETTERS ARE COLUMNS
+NUMBERS ARE ROWS
+a0 is top left corner
+
+
+
+
+
+get illegal fences phase 1:
+    for every possible unblocked fence
+        check to make sure that each player can still reach their destination;
+        If they can't this fence is an illegal fence.
+
+get illegal fences phase 2:
+   for every possible unblocked fence
+        if the fence is adjacent to another fence or the wall on both sides
+            check to make sure that each player can still reach their dest.
+            If one can't then this fence is an illegal fence
