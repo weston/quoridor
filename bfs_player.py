@@ -15,6 +15,10 @@ class BFSPlayer(QuoridorBasePlayer):
         destination = perform_bfs(piece.location, piece.goal_locations,
                 board.blocked_moves)
         move = PieceMove(piece.location, destination)
+
+        # We have to make sure that this is a legal move because
+        # get_adjacent_locations does not take into consideration
+        # fences or other pieces.
         if move in board.get_legal_moves(piece):
             return move
         return board.get_legal_moves[0]

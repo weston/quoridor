@@ -23,9 +23,11 @@ class QuoridorGame(object):
         self.board = QuoridorBoard()
         num_fences = TOTAL_FENCES / self.num_players
         self.num_fences = num_fences
+        print "Welcome to Quoridor"
+        print "Please specify the player classes you want to use"
         print "Leave blank for human_player:HumanPlayer"
         for i in range(self.num_players):
-            module_class_str = raw_input("class for p" + str(i) + ": ")
+            module_class_str = raw_input("class for player " + str(i) + ": ")
             if module_class_str == "":
                 module_str = "human_player"
                 class_name = "HumanPlayer"
@@ -37,7 +39,7 @@ class QuoridorGame(object):
             if not issubclass(class_, QuoridorBasePlayer):
                 print "Not a valid class. Exiting."
             print "Leave blank for player" + str(i)
-            name = raw_input("Name for p1: ")
+            name = raw_input("Name for player " + str(i) + ": ")
             if name == "":
                 name = "player" + str(i)
             player = class_(num_fences, name)
