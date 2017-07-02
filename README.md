@@ -26,8 +26,11 @@ class for player 0:
 To pit BFSPlayer vs NoFencePlayer, we can enter:
 
 ```bfs_player:BFSPlayer```
+
 ```enter some name```
+
 ```no_fence_player:NoFencePlayer```
-```enter some name```
+
+```enter some other name```
 
 They will then proceed to play the game of quoridor and the outcome will be printed to the stdout.
