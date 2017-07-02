@@ -13,6 +13,7 @@ class QuoridorBoard(object):
         """
         self.fences = []
         self.pieces = []
+        self.foobar = []
         self.complete = False
 
         # fencelocations that are physically blocked by other fences
@@ -63,11 +64,9 @@ class QuoridorBoard(object):
         assert piece_move.end.column in POSSIBLE_COLUMNS
         assert piece_move.end.row in POSSIBLE_ROWS
 
-        # assert this piece is not jumping onto any other pieces
-        assert piece_move.end not in [p.location for p in self.pieces]
-
         # assert that piece_move is a valid move for piece
-        # assert piece_move.end in piece.get_legal_movements()
+        assert piece_move.end in piece.get_legal_destinations(self.pieces,
+                self.blocked_moves)
 
         piece.location = piece_move.end
         if piece.location in piece.goal_positions:
@@ -200,9 +199,32 @@ class Piece(object):
             return [PieceLocation(col + "0") for col in POSSIBLE_COLUMNS]
         raise Exception("invalid start position")
 
-    def get_legal_movements(self):
-        #TODO Implement this
-        return {}
+    def get_legal_destinations(self, pieces, blocked_moves):
+        adjacent_locations = self.location.get_adjacent_locations()
+        occupied_locations = [piece.location for piece in pieces]
+        current_location = self.location
+        legal_destinations = set()
+        for adj_loc in adjacent_locations:
+            if PieceMove(current_location, adj_loc) in blocked_moves:
+                continue
+            if adj_loc in occupied_locations:
+                colinear_loc = current_location.get_colinear_location(adj_loc)
+                if (colinear_loc is not None and
+                    PieceMove(adj_loc, colinear_loc) not in blocked_moves and
+                    colinear_loc not in occupied_locations):
+
+                    legal_destinations.add(colinear_loc)
+                else:
+                    noncolinear_locs = (current_location.
+                            get_non_colinear_locations(adj_loc))
+                    for loc in noncolinear_locs:
+                        if (PieceMove(adj_loc, loc) not in blocked_moves and
+                                loc not in occupied_locations):
+                            legal_destinations.add(loc)
+            else:
+                legal_destinations.add(adj_loc)
+
+        return legal_destinations
 
 class PieceMove(object):
 
@@ -281,4 +303,34 @@ class PieceLocation(Location):
                     and location.row in POSSIBLE_ROWS):
                 adjacent_locations.append(location)
         return adjacent_locations
+
+    def get_colinear_location(self, other_location):
+        """
+        given self and other_location, finds a third location that
+        makes a line starting at self, going through other_location,
+        and ending at the third location. All of these must be adjacent.
+        Used only for hopping logic.
+        """
+        candidate = None
+        if other_location == PieceLocation(self.add_column(1) + self.row):
+            candidate = PieceLocation(self.add_column(2) + self.row)
+        if other_location == PieceLocation(self.add_column(-1) + self.row):
+            candidate = PieceLocation(self.add_column(-2) + self.row)
+        if other_location == PieceLocation(self.column + self.add_row(1)):
+            candidate = PieceLocation(self.column + self.add_row(2))
+        if other_location == PieceLocation(self.column + self.add_row(-1)):
+            candidate = PieceLocation(self.column + self.add_row(-2))
+        if (candidate is not None and candidate.column in POSSIBLE_COLUMNS
+                and candidate.row in POSSIBLE_ROWS):
+            return candidate
+        return None
+
+
+    def get_non_colinear_locations(self, other_location):
+        """
+        does the opposite of get_colinear_location. Used for hopping logic.
+        """
+        return (set(other_location.get_adjacent_locations()) -
+                ({self.get_colinear_location(other_location), self}))
+
 

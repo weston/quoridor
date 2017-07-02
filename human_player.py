@@ -12,6 +12,8 @@ class HumanPlayer(QuoridorBasePlayer):
     def handle_turn(self, board, piece, num_seconds):
         print "\n========== NEXT TURN =========="
         print self.name + ": you are at " + str(piece.location)
+        print "legal moves:"
+        print piece.get_legal_destinations(board.pieces, board.blocked_moves)
         move_string = raw_input("Enter your next move: ")
         if len(move_string) == 3:
             return Fence(FenceLocation(move_string))

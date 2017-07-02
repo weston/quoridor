@@ -46,23 +46,22 @@ class QuoridorGame(object):
         self.fence_counts = {player: num_fences for player in self.players}
 
     def run(self):
-        board = QuoridorBoard()
         turn = 0
-        while not board.complete:
+        while not self.board.complete:
             player_to_go = turn % self.num_players
             player = self.players[player_to_go]
             piece = self.pieces[player_to_go]
-            board_copy = copy.deepcopy(board)
+            board_copy = copy.deepcopy(self.board)
             piece_copy = copy.deepcopy(piece)
             action = player.handle_turn(board_copy, piece_copy, 0)
             if isinstance(action, Fence):
                 assert self.fence_counts[player] > 0
-                board.add_fence(action)
+                self.board.add_fence(action)
                 self.fence_counts[player] -= 1
                 player.num_fences = self.fence_counts[player]
             else:
                 assert isinstance(action, PieceMove)
-                board.move_piece(piece, action)
+                self.board.move_piece(piece, action)
             turn += 1
 
 QuoridorGame().run()
