@@ -4,9 +4,8 @@ quoridor_game.py
 import copy
 import importlib
 
-from quoridor import QuoridorBoard
-from quoridor import Fence, PieceMove
-from quoridor_base_player import QuoridorBasePlayer
+from quoridor import Fence, PieceMove, QuoridorBoard
+from players import QuoridorBasePlayer
 
 TOTAL_FENCES = 20
 
@@ -25,11 +24,11 @@ class QuoridorGame(object):
         self.num_fences = num_fences
         print "Welcome to Quoridor"
         print "Please specify the player classes you want to use"
-        print "Leave blank for human_player:HumanPlayer"
+        print "Leave blank for players:HumanPlayer"
         for i in range(self.num_players):
             module_class_str = raw_input("class for player " + str(i) + ": ")
             if module_class_str == "":
-                module_str = "human_player"
+                module_str = "players"
                 class_name = "HumanPlayer"
             else:
                 module_str = module_class_str.split(":")[0]
@@ -38,6 +37,7 @@ class QuoridorGame(object):
             class_ = getattr(module, class_name)
             if not issubclass(class_, QuoridorBasePlayer):
                 print "Not a valid class. Exiting."
+                quit()
             print "Leave blank for player" + str(i)
             name = raw_input("Name for player " + str(i) + ": ")
             if name == "":
@@ -75,7 +75,7 @@ class QuoridorGame(object):
                 except:
                     print "Invalid move received. Please try again"
                 turn += 1
-        print "Game lasted {} turns!".format(turn/2)
+        print "Game lasted {} turns!".format(turn / 2)
         dump = raw_input("dump gameplay log? (y/n): ")
         if dump.lower() in ("y", "yes"):
             self.gameplay_dump(actions)
@@ -90,11 +90,10 @@ class QuoridorGame(object):
             else:
                 action_str = "Turn {}: {} moved from {}"
             print action_str.format(
-                turn/2,
+                turn / 2,
                 str(player),
                 str(action)
             )
             turn += 1
 
 QuoridorGame().run()
-

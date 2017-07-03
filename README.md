@@ -4,7 +4,7 @@ quoridor.py is a python package that allows you to write bots that play quoridor
 
 ## Getting Started
 
-I have included some very dumb quoridor bots that are able to play versus eachother. To create a new quoridor bot, you have to subclass the `QuoridorBasePlayer` in `quoridor_base_player.py`.  Examples of this can be found in `random_player.py`, `no_fence_player.py`, and `bfs_player.py`.
+I have included some very dumb quoridor bots that are able to play versus eachother. To create a new quoridor bot, you have to subclass the `QuoridorBasePlayer` in `players.py`.  Examples of this can also be found in `players.py'.
 
 
 ## Playing games
@@ -18,18 +18,18 @@ Welcome to Quoridor
 
 Please specify the player classes you want to use
 
-Leave blank for human_player:HumanPlayer
+Leave blank for plauers:HumanPlayer
 
 class for player 0:
 ```
 
 To pit BFSPlayer vs NoFencePlayer, we can enter:
 
-```bfs_player:BFSPlayer```
+```players:BFSPlayer```
 
 ```enter some name```
 
-```no_fence_player:NoFencePlayer```
+```players:NoFencePlayer```
 
 ```enter some other name```
 
