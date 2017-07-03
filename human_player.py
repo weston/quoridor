@@ -10,7 +10,7 @@ class HumanPlayer(QuoridorBasePlayer):
     Use this player to have manual move inputs.
     """
     def handle_turn(self, board, piece, num_seconds):
-        print "\n========== NEXT TURN =========="
+        print "\n========== ENTER ACTION  =========="
         print self.name + ": you are at " + str(piece.location)
         print "your legal moves are:"
         print piece.get_legal_destinations(board.pieces, board.blocked_moves)

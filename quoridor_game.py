@@ -57,17 +57,24 @@ class QuoridorGame(object):
             piece = self.pieces[player_to_go]
             board_copy = copy.deepcopy(self.board)
             piece_copy = copy.deepcopy(piece)
-            action = player.handle_turn(board_copy, piece_copy, 0)
-            actions.append(action)
-            if isinstance(action, Fence):
-                assert self.fence_counts[player] > 0
-                self.board.add_fence(action)
-                self.fence_counts[player] -= 1
-                player.num_fences = self.fence_counts[player]
-            else:
-                assert isinstance(action, PieceMove)
-                self.board.move_piece(piece, action)
-            turn += 1
+            received_valid_move = False
+
+            while not received_valid_move:
+                try:
+                    action = player.handle_turn(board_copy, piece_copy, 0)
+                    actions.append(action)
+                    if isinstance(action, Fence):
+                        assert self.fence_counts[player] > 0
+                        self.board.add_fence(action)
+                        self.fence_counts[player] -= 1
+                        player.num_fences = self.fence_counts[player]
+                    else:
+                        assert isinstance(action, PieceMove)
+                        self.board.move_piece(piece, action)
+                    received_valid_move = True
+                except:
+                    print "Invalid move received. Please try again"
+                turn += 1
         print "Game lasted {} turns!".format(turn/2)
         dump = raw_input("dump gameplay log? (y/n): ")
         if dump.lower() in ("y", "yes"):
