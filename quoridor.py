@@ -176,7 +176,7 @@ class Fence(object):
         return hash(self.location)
 
     def __repr__(self):
-        return "Fence at " + str(self.location)
+        return "fence at " + str(self.location)
 
 
 class Piece(object):

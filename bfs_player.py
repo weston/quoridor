@@ -21,7 +21,7 @@ class BFSPlayer(QuoridorBasePlayer):
         # fences or other pieces.
         if move in board.get_legal_moves(piece):
             return move
-        return board.get_legal_moves[0]
+        return board.get_legal_moves(piece).pop()
 
 
 def perform_bfs(start, goals, blocked_moves):

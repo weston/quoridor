@@ -28,3 +28,6 @@ class QuoridorBasePlayer(object):
         """
         raise NotImplementedError
 
+    def __repr__(self):
+        return self.name
+

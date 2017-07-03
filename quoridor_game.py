@@ -50,6 +50,7 @@ class QuoridorGame(object):
 
     def run(self):
         turn = 0
+        actions = []
         while not self.board.complete:
             player_to_go = turn % self.num_players
             player = self.players[player_to_go]
@@ -57,6 +58,7 @@ class QuoridorGame(object):
             board_copy = copy.deepcopy(self.board)
             piece_copy = copy.deepcopy(piece)
             action = player.handle_turn(board_copy, piece_copy, 0)
+            actions.append(action)
             if isinstance(action, Fence):
                 assert self.fence_counts[player] > 0
                 self.board.add_fence(action)
@@ -66,7 +68,26 @@ class QuoridorGame(object):
                 assert isinstance(action, PieceMove)
                 self.board.move_piece(piece, action)
             turn += 1
-        print "Game lasted {} turns!".format(turn)
+        print "Game lasted {} turns!".format(turn/2)
+        dump = raw_input("dump gameplay log? (y/n): ")
+        if dump.lower() in ("y", "yes"):
+            self.gameplay_dump(actions)
+
+    def gameplay_dump(self, actions):
+        turn = 0
+        for action in actions:
+            player_to_go = turn % self.num_players
+            player = self.players[player_to_go]
+            if isinstance(action, Fence):
+                action_str = "Turn {}: {} placed a {}"
+            else:
+                action_str = "Turn {}: {} moved from {}"
+            print action_str.format(
+                turn/2,
+                str(player),
+                str(action)
+            )
+            turn += 1
 
 QuoridorGame().run()
 
