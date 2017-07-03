@@ -34,4 +34,7 @@ To pit BFSPlayer vs NoFencePlayer, we can enter:
 ```enter some other name```
 
 They will then proceed to play the game of quoridor and the outcome will be printed to the stdout.
+
+You can also choose to view the gameplay history dump at the end of the game.
+
 How exciting!
